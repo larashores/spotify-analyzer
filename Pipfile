@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+black = "*"
+mypy = "*"
+isort = "*"
+pytest = "*"
+pylint = "*"
+cx-freeze = "*"
+py2exe = "*"
+
+[packages]
+matplotobjlib = "*"
+cx-freeze = "*"
+toml = "*"
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
