@@ -14,13 +14,15 @@ from gui.components.totaltracks import TotalTracks
 from gui.options import OptionWidget
 from track import Track
 
+from type_hints import Parent
+
 logger = logging.getLogger(f"analysis.{__name__}")
 
 COMPONENTS = (ArtistsPlot, MonthlyListens, TopArtistsByDuration, TopArtistsByListens, TotalTracks)
 
 
 class AnalysisWidgets(ttk.Frame):
-    def __init__(self, parent: tk.Widget):
+    def __init__(self, parent: Parent):
         super().__init__(parent)
 
         sidebar_frame = ttk.Frame(self)
@@ -53,7 +55,7 @@ class AnalysisWidgets(ttk.Frame):
 
 
 class Analysis:
-    def __init__(self, parent: tk.Widget, *, config: Config):
+    def __init__(self, parent: Parent, *, config: Config):
         self.gui = AnalysisWidgets(parent)
 
         self._tracks: Optional[List[Track]] = None

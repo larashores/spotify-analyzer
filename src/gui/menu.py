@@ -2,9 +2,11 @@ import tkinter as tk
 from tkinter.filedialog import askdirectory
 from typing import Callable, Optional
 
+from type_hints import Parent
+
 
 class Menu(tk.Menu):
-    def __init__(self, parent: tk.Widget, *, on_load: Optional[Callable[[str], None]] = None):
+    def __init__(self, parent: Parent, *, on_load: Optional[Callable[[str], None]] = None):
         tk.Menu.__init__(self, parent)
         self._top_level = parent.winfo_toplevel()
         self._base_title = self._top_level.wm_title()
@@ -22,6 +24,6 @@ class Menu(tk.Menu):
         path = askdirectory(
             title="Select folder containing Spotify data",
         )
-        if path is not None and self._on_load_callback:
+        if path and self._on_load_callback:
             self._top_level.wm_title("{} - {}".format(path, self._base_title))
             self._on_load_callback(path)

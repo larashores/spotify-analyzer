@@ -4,10 +4,11 @@ from typing import List
 
 from gui.components.component import Component
 from track import Track
+from type_hints import Parent
 
 
 class TextComponent(Component):
-    def __init__(self, parent: tk.Widget, **kwargs):
+    def __init__(self, parent: Parent, **kwargs):
         super().__init__(parent, **kwargs)
         self._text = tk.Text(self, state="disabled")
         self._text.pack(expand=True, fill=tk.BOTH)

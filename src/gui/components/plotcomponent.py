@@ -6,10 +6,11 @@ import matplotobjlib as plot
 
 from gui.components.component import Component
 from track import Track
+from type_hints import Parent
 
 
 class PlotComponent(Component):
-    def __init__(self, parent: tk.Widget, **kwargs):
+    def __init__(self, parent: Parent, **kwargs):
         super().__init__(parent, **kwargs)
         self._figure = None
 

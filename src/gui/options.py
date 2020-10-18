@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Any, Callable
 
+from type_hints import Parent
+
 
 class OptionWidget(ttk.Frame):
     def get_value(self) -> Any:
@@ -12,7 +14,7 @@ Option = Callable[[tk.Widget], OptionWidget]
 
 
 class _CheckButton(OptionWidget):
-    def __init__(self, parent: tk.Widget, *, text: str):
+    def __init__(self, parent: Parent, *, text: str):
         super().__init__(parent)
         self._var = tk.IntVar(self)
         check = ttk.Checkbutton(self, text=text, variable=self._var)
@@ -27,5 +29,5 @@ class CheckButton:
     def __init__(self, text: str):
         self._text = text
 
-    def __call__(self, parent: tk.Widget) -> OptionWidget:
+    def __call__(self, parent: Parent) -> OptionWidget:
         return _CheckButton(parent, text=self._text)
