@@ -1,6 +1,7 @@
+import collections
 import datetime
 import logging
-from typing import Any, Callable, Iterable, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Union
 
 from track import Track
 
@@ -79,3 +80,22 @@ def moving_average(values: Sequence[float], distance: int) -> Sequence[float]:
         averages.append(total / distance)
 
     return averages
+
+
+def listens_per_day(tracks: Iterable[Track]) -> Tuple[List[datetime.date], Dict[str, List[int]]]:
+    tracks_by_day: Dict[datetime.date, List[Track]] = collections.defaultdict(list)
+    for track in tracks:
+        tracks_by_day[in_day(track)].append(track)
+
+    artists: Set[str] = set(track.artist for track in tracks)
+    listens_per_day: Dict[str, List[int]] = collections.defaultdict(list)
+
+    for _day, tracks in tracks_by_day.items():
+        artist_to_tracks: Dict[str, List[Track]] = collections.defaultdict(list)
+        for track in tracks:
+            artist_to_tracks[track.artist].append(track)
+
+        for artist in artists:
+            listens_per_day[artist].append(len(artist_to_tracks[artist]))
+
+    return list(tracks_by_day.keys()), dict(listens_per_day)

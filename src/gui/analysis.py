@@ -13,7 +13,6 @@ from gui.components.topartists import TopArtistsByDuration, TopArtistsByListens
 from gui.components.totaltracks import TotalTracks
 from gui.options import OptionWidget
 from track import Track
-
 from type_hints import Parent
 
 logger = logging.getLogger(f"analysis.{__name__}")
@@ -98,6 +97,8 @@ class Analysis:
 
                 for option in component_type.options:
                     widget = option(self.gui.options_frame)
+                    if self._tracks is not None:
+                        widget.set_tracks(self._tracks)
                     widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
                     self._options.append(widget)
 
@@ -123,4 +124,6 @@ class Analysis:
         if result.errors:
             showwarning(title="Warning", message=f"Error loading tracks files: {result.errors}")
         self._tracks = result.tracks
+        for option in self._options:
+            option.set_tracks(self._tracks)
         self._on_analyze()
