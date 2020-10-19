@@ -20,7 +20,7 @@ class PlotComponent(Component):
         self._figure = plot.TkFigure(
             self,
             [[plot.SubPlot(*self.graphs(tracks, *args))]],
-            adjust=plot.SubplotsAdjust(left=0.05, right=0.975, top=0.975, bottom=0.08),
+            adjust=plot.SubplotsAdjust(left=0.07, right=0.975, top=0.975, bottom=0.08),
         )
         self._figure.pack(expand=True, fill=tk.BOTH)  # type: ignore
 

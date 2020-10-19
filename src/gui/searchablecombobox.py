@@ -47,7 +47,9 @@ class SearchableComboBox(ttk.Frame):
             self._listbox_configure()
 
             if values:
-                self._entry.insert(0, self._suggested)
+                with self._validation_disabled():
+                    self._entry.insert(0, self._suggested)
+
         super().config(**kwargs)
 
     def _on_type(self, op: str, ind: str, edit: str, after: str) -> bool:
@@ -75,7 +77,10 @@ class SearchableComboBox(ttk.Frame):
                 self._popup()
             self._listbox_configure()
         elif self._toplevel:
-            self._select_suggested()
+            if self._suggested:
+                self._select_suggested()
+            else:
+                self._unpopup()
 
     def _on_listbox_click(self, _event: tk.Event) -> None:
         selected = self._listbox.curselection()  # type: ignore
