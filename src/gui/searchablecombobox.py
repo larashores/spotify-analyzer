@@ -1,3 +1,4 @@
+import contextlib
 import tkinter as tk
 from tkinter import ttk
 from typing import Iterable, List, Optional
@@ -31,11 +32,28 @@ class SearchableComboBox(ttk.Frame):
         self._listbox: Optional[tk.Listbox] = None
         self._scrollbar: Optional[ttk.Scrollbar] = None
 
-        self._values: List[str]
-        self._suggestions: List[str]
+        self._values: List[str] = []
+        self._suggested: Optional[str] = None
         self.config(values=values)
 
+        self._skip_validation = False
+
+    def config(self, **kwargs) -> None:
+        if "values" in kwargs:
+            values = kwargs.pop("values")
+
+            self._values = sorted(values) if values is not None else []
+            self._suggested = self._values[0] if values is not None else None
+            self._listbox_configure()
+    
+            if values:
+                self._entry.insert(0, self._suggested)
+
+        super().config(**kwargs)
+
     def _on_type(self, op: str, ind: str, edit: str, after: str) -> bool:
+        if self._skip_validation:
+            return True
         if op == "1":
             self._entry.insert(tk.INSERT, edit)
         elif op == "0":
@@ -45,8 +63,8 @@ class SearchableComboBox(ttk.Frame):
             self._popup()
         self._listbox_configure()
 
-        if op == "1" and self._suggestions:
-            self._entry.insert(tk.INSERT, self._suggestions[0][len(after) :])
+        if op == "1" and self._suggested:
+            self._entry.insert(tk.INSERT, self._suggested[len(after) :])
             self._entry.icursor(len(after))
             self._entry.select_range(tk.INSERT, tk.END)
 
@@ -61,70 +79,71 @@ class SearchableComboBox(ttk.Frame):
             self._unpopup()
 
     def _on_listbox_click(self, event: tk.Event) -> None:
-        self._select_suggestion()
+        self._suggested = (sel := self._listbox.curselection()) and self._values[sel[0]]
+        self._select_suggested()
 
     def _on_configure(self, event: tk.Event) -> None:
         if self._toplevel:
             self._unpopup()
 
     def _on_return(self, event: tk.Event) -> None:
-        self._select_suggestion()
+        if self._suggested:
+            self._select_suggested()
 
     def _on_focus_out(self, event: tk.Event) -> None:
-        value = self._entry.get().lower()
-        if value not in self._values:
-            new = self._suggestions[0] if self._suggestions else self._values[0] if self._values else ""
-            self._entry.delete(0, tk.END)
-            self._entry.insert(0, new)
+        if self._suggested:
+            self._select_suggested()
 
-    def _select_suggestion(self) -> None:
-        selection = self._suggestions[self._listbox.curselection()[0]]
-        self._entry.delete(0, tk.END)
-        self._entry.insert(0, selection)
-        self._unpopup()
+    def _select_suggested(self) -> None:
+        with self._validation_disabled():
+            self._entry.delete(0, tk.END)
+            self._entry.insert(0, self._suggested)
+        if self._toplevel:
+            self._unpopup()
 
     def _listbox_configure(self) -> None:
-        self._suggestions = sorted(val for val in self._values if val.lower().startswith(self._entry.get().lower()))
         if self._toplevel:
-            if not self._suggestions:
-                self._unpopup()
+            self._listbox.select_clear(0, tk.END)
+            try:
+                ind, self._suggested = next(
+                    (ind, val)
+                    for ind, val in enumerate(self._values)
+                    if val.lower().startswith(self._entry.get().lower())
+                )
+            except StopIteration:
+                self._suggested = None
             else:
-                size = len(self._suggestions)
-                if size > 10:
-                    size = 10
-                    if not self._scrollbar:
-                        self._scrollbar = ttk.Scrollbar(self._toplevel, orient=tk.VERTICAL)
-                        self._scrollbar.pack(expand=True, fill=tk.Y)
-                        self._scrollbar.config(command=self._listbox.yview)
-                        self._listbox.config(yscrollcommand=self._scrollbar.set)
-                elif self._scrollbar:
-                    self._listbox.config(yscrollcommand=None)
-                    self._scrollbar.destroy()
-                    self._scrollbar = None
-                self._listbox.configure(height=size)
-                self._listbox.delete(0, tk.END)
-                self._listbox.insert(0, *self._suggestions)
-                self._listbox.select_set((0))
+                self._listbox.see(ind)
+                self._listbox.select_set((ind,))
 
     def _popup(self) -> None:
         assert not self._toplevel
+        if not self._values:
+            return
         self._toplevel = tk.Toplevel(self)
         self._toplevel.overrideredirect(True)
         self._toplevel.geometry(f"+{self._entry.winfo_rootx()}+{self._entry.winfo_rooty()+self._entry.winfo_height()}")
-        self._listbox = tk.Listbox(self._toplevel, selectmode=tk.SINGLE)
+        self._listbox = tk.Listbox(
+            self._toplevel, selectmode=tk.SINGLE, height=min(len(self._values), 10), exportselection=False
+        )
         self._listbox.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
         self._listbox.bind("<Button-1>", lambda event: self.after(20, self._on_listbox_click, event))
+        self._listbox.insert(0, *self._values)
+
+        if len(self._values) > 10:
+            self._scrollbar = ttk.Scrollbar(self._toplevel, orient=tk.VERTICAL, command=self._listbox.yview)
+            self._scrollbar.pack(expand=True, fill=tk.Y)
+            self._listbox.config(yscrollcommand=self._scrollbar.set)
 
     def _unpopup(self) -> None:
         self._toplevel.destroy()
         self._toplevel = None
         self._listbox = None
 
-    def config(self, **kwargs) -> None:
-        if "values" in kwargs:
-            values = kwargs.pop("values")
-
-            self._values = list(values) if values is not None else []
-            self._listbox_configure()
-
-        super().config(**kwargs)
+    @contextlib.contextmanager
+    def _validation_disabled(self):
+        try:
+            self._skip_validation = True
+            yield
+        finally:
+            self._skip_validation = False

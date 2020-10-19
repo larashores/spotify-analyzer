@@ -51,7 +51,7 @@ class ArtistChooser(OptionWidget):
 
         label = ttk.Label(self, text="Artists")
         listbox_frame = ttk.Frame(self)
-        self._listbox = tk.Listbox(listbox_frame)
+        self._listbox = tk.Listbox(listbox_frame, selectmode=tk.EXTENDED)
         vsbar = ttk.Scrollbar(listbox_frame)
         hsbar = ttk.Scrollbar(listbox_frame, orient=tk.HORIZONTAL)
 
@@ -117,7 +117,7 @@ class ArtistChooser(OptionWidget):
         self._configure_combo_box()
 
     def _on_delete(self, event: tk.Event) -> None:
-        for index in self._listbox.curselection():
+        for index in reversed(self._listbox.curselection()):
             self._listbox.delete(index)
         self._configure_combo_box()
 
