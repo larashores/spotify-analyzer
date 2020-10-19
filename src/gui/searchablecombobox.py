@@ -45,7 +45,7 @@ class SearchableComboBox(ttk.Frame):
             self._values = sorted(values) if values is not None else []
             self._suggested = self._values[0] if values is not None else None
             self._listbox_configure()
-    
+
             if values:
                 self._entry.insert(0, self._suggested)
 

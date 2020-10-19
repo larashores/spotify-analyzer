@@ -24,11 +24,10 @@ class AnalysisWidgets(ttk.Frame):
     def __init__(self, parent: Parent):
         super().__init__(parent)
 
-        sidebar_frame = ttk.Frame(self)
-        sidebar_label = ttk.Label(sidebar_frame, text="Options", style="Subtitle.TLabel")
-        self.options_frame = ttk.Frame(sidebar_frame)
-        sidebar_button_seperator = ttk.Separator(sidebar_frame)
-        self.sidebar_button = ttk.Button(sidebar_frame, text="Analyze")
+        self.options_frame = ttk.Frame(self)
+        options_label = ttk.Label(self.options_frame, text="Options", style="Subtitle.TLabel")
+        self.options_seperator = ttk.Separator(self.options_frame)
+        self.options_button = ttk.Button(self.options_frame, text="Analyze")
         sidebar_seperator = ttk.Separator(self, orient=tk.VERTICAL)
 
         choice_frame = ttk.Frame(self)
@@ -38,11 +37,9 @@ class AnalysisWidgets(ttk.Frame):
 
         self.analysis_frame = ttk.Frame(self)
 
-        sidebar_frame.pack(side=tk.LEFT, fill=tk.Y)
-        sidebar_label.pack()
-        self.options_frame.pack()
-        sidebar_button_seperator.pack(fill=tk.X, padx=5, pady=5)
-        self.sidebar_button.pack(padx=30, pady=(0, 30), anchor=tk.N)
+        self.options_frame.pack(side=tk.LEFT, fill=tk.Y)
+        options_label.pack()
+        self.pack_options()
 
         sidebar_seperator.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
 
@@ -51,6 +48,16 @@ class AnalysisWidgets(ttk.Frame):
         self.choice_combo.pack(side=tk.LEFT, expand=True, fill=tk.X)
 
         self.analysis_frame.pack(expand=True, fill=tk.BOTH)
+
+    def pack_options(self, *widgets: tk.Widget) -> None:
+        self.options_seperator.pack_forget()
+        self.options_button.pack_forget()
+
+        for widget in widgets:
+            widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
+
+        self.options_seperator.pack(fill=tk.X, padx=5, pady=5)
+        self.options_button.pack(padx=30, anchor=tk.N)
 
 
 class Analysis:
@@ -67,7 +74,7 @@ class Analysis:
                 self._component_map[component.name] = component
         names = sorted(self._component_map.keys())
 
-        self.gui.sidebar_button.config(command=self._on_analyze)
+        self.gui.options_button.config(command=self._on_analyze)
         self.gui.choice_combo.config(values=names)
         self.gui.choice_combo.state(["readonly"])
         self.gui.choice_combo.bind("<<ComboboxSelected>>", self._on_select)
@@ -99,8 +106,8 @@ class Analysis:
                     widget = option(self.gui.options_frame)
                     if self._tracks is not None:
                         widget.set_tracks(self._tracks)
-                    widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
                     self._options.append(widget)
+                self.gui.pack_options(*self._options)
 
                 component.pack(expand=True, fill=tk.BOTH)
                 self._last_choice = choice
