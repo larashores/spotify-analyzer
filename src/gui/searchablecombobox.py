@@ -75,7 +75,7 @@ class SearchableComboBox(ttk.Frame):
                 self._popup()
             self._listbox_configure()
         elif self._toplevel:
-            self._unpopup()
+            self._select_suggested()
 
     def _on_listbox_click(self, _event: tk.Event) -> None:
         selected = self._listbox.curselection()  # type: ignore
@@ -91,6 +91,15 @@ class SearchableComboBox(ttk.Frame):
             self._select_suggested()
 
     def _on_focus_out(self, _event: tk.Event) -> None:
+        x, y =  self.winfo_pointerxy()
+        if self._toplevel:
+            root_x = self._toplevel.winfo_rootx()
+            root_y = self._toplevel.winfo_rooty()
+            if (
+                root_x < x < root_x + self._toplevel.winfo_width()
+                and root_y < y < root_y + self._toplevel.winfo_width()
+            ):
+                return  # Clicked on listbox
         if self._suggested:
             self._select_suggested()
 
