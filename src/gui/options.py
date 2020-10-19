@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter.messagebox import showwarning
-from typing import Any, List, Optional, Protocol, Set, Union
+from typing import Any, List, Protocol, Set
 
 import utils
 from gui.searchablecombobox import SearchableComboBox
@@ -21,7 +20,7 @@ class OptionWidget(ttk.Frame):
 
 
 class Option(Protocol):
-    def __call__(self, parent: Parent = None, *, tracks: List[Track]) -> OptionWidget:
+    def __call__(self, parent: Parent = None) -> OptionWidget:
         ...
 
 
@@ -87,9 +86,6 @@ class ArtistChooser(OptionWidget):
         self._listbox.bind("<Delete>", self._on_delete)
         self._top_artists_spinbox.set(10)
 
-        tk.Grid.rowconfigure(self, 1, weight=1)
-        tk.Grid.columnconfigure(self, 0, weight=1)
-
         self._artists: Set[str] = set()
         self._top_artists: List[str] = []
 
@@ -116,7 +112,7 @@ class ArtistChooser(OptionWidget):
         self._listbox.insert(self._listbox.size(), self._combo_var.get())
         self._configure_combo_box()
 
-    def _on_delete(self, event: tk.Event) -> None:
+    def _on_delete(self, _event: tk.Event) -> None:
         for index in reversed(self._listbox.curselection()):
             self._listbox.delete(index)
         self._configure_combo_box()

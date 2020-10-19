@@ -1,12 +1,10 @@
-import collections
-import datetime
-from typing import Dict, Iterable, List, Set, Tuple
+from typing import Iterable, List
 
 import matplotobjlib as plot
 
 import utils
 from gui.components import PlotComponent
-from gui.options import ArtistChooser, CheckButton
+from gui.options import ArtistChooser
 from track import Track
 
 

@@ -82,13 +82,13 @@ def moving_average(values: Sequence[float], distance: int) -> Sequence[float]:
     return averages
 
 
-def listens_per_day(tracks: Iterable[Track]) -> Tuple[List[datetime.date], Dict[str, List[int]]]:
+def listens_per_day(all_tracks: Iterable[Track]) -> Tuple[List[datetime.date], Dict[str, List[int]]]:
     tracks_by_day: Dict[datetime.date, List[Track]] = collections.defaultdict(list)
-    for track in tracks:
+    for track in all_tracks:
         tracks_by_day[in_day(track)].append(track)
 
-    artists: Set[str] = set(track.artist for track in tracks)
-    listens_per_day: Dict[str, List[int]] = collections.defaultdict(list)
+    artists: Set[str] = set(track.artist for track in all_tracks)
+    listens_each_day: Dict[str, List[int]] = collections.defaultdict(list)
 
     for _day, tracks in tracks_by_day.items():
         artist_to_tracks: Dict[str, List[Track]] = collections.defaultdict(list)
@@ -96,6 +96,6 @@ def listens_per_day(tracks: Iterable[Track]) -> Tuple[List[datetime.date], Dict[
             artist_to_tracks[track.artist].append(track)
 
         for artist in artists:
-            listens_per_day[artist].append(len(artist_to_tracks[artist]))
+            listens_each_day[artist].append(len(artist_to_tracks[artist]))
 
-    return list(tracks_by_day.keys()), dict(listens_per_day)
+    return list(tracks_by_day.keys()), dict(listens_each_day)

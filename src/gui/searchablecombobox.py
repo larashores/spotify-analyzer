@@ -20,7 +20,7 @@ class SearchableComboBox(ttk.Frame):
             justify=tk.CENTER,
             validate="key",
             validatecommand=(self.register(self._on_type), "%d", "%i", "%S", "%P"),
-            textvariable=textvariable,
+            textvariable=textvariable,  # type: ignore
         )
         self._entry.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
         self._entry.bind("<Return>", self._on_return)
@@ -38,7 +38,7 @@ class SearchableComboBox(ttk.Frame):
 
         self._skip_validation = False
 
-    def config(self, **kwargs) -> None:
+    def config(self, **kwargs) -> None:  # type: ignore
         if "values" in kwargs:
             values = kwargs.pop("values")
 
@@ -48,7 +48,6 @@ class SearchableComboBox(ttk.Frame):
 
             if values:
                 self._entry.insert(0, self._suggested)
-
         super().config(**kwargs)
 
     def _on_type(self, op: str, ind: str, edit: str, after: str) -> bool:
@@ -78,19 +77,20 @@ class SearchableComboBox(ttk.Frame):
         elif self._toplevel:
             self._unpopup()
 
-    def _on_listbox_click(self, event: tk.Event) -> None:
-        self._suggested = (sel := self._listbox.curselection()) and self._values[sel[0]]
+    def _on_listbox_click(self, _event: tk.Event) -> None:
+        selected = self._listbox.curselection()  # type: ignore
+        self._suggested = selected and self._values[selected[0]]
         self._select_suggested()
 
-    def _on_configure(self, event: tk.Event) -> None:
+    def _on_configure(self, _event: tk.Event) -> None:
         if self._toplevel:
             self._unpopup()
 
-    def _on_return(self, event: tk.Event) -> None:
+    def _on_return(self, _event: tk.Event) -> None:
         if self._suggested:
             self._select_suggested()
 
-    def _on_focus_out(self, event: tk.Event) -> None:
+    def _on_focus_out(self, _event: tk.Event) -> None:
         if self._suggested:
             self._select_suggested()
 
@@ -103,7 +103,7 @@ class SearchableComboBox(ttk.Frame):
 
     def _listbox_configure(self) -> None:
         if self._toplevel:
-            self._listbox.select_clear(0, tk.END)
+            self._listbox.select_clear(0, tk.END)  # type: ignore
             try:
                 ind, self._suggested = next(
                     (ind, val)
@@ -113,8 +113,8 @@ class SearchableComboBox(ttk.Frame):
             except StopIteration:
                 self._suggested = None
             else:
-                self._listbox.see(ind)
-                self._listbox.select_set((ind,))
+                self._listbox.see(ind)  # type: ignore
+                self._listbox.select_set((ind,))  # type: ignore
 
     def _popup(self) -> None:
         assert not self._toplevel
@@ -127,8 +127,8 @@ class SearchableComboBox(ttk.Frame):
             self._toplevel, selectmode=tk.SINGLE, height=min(len(self._values), 10), exportselection=False
         )
         self._listbox.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
-        self._listbox.bind("<Button-1>", lambda event: self.after(20, self._on_listbox_click, event))
-        self._listbox.insert(0, *self._values)
+        self._listbox.bind("<Button-1>", lambda event: self.after(20, self._on_listbox_click, event))  # type: ignore
+        self._listbox.insert(0, *self._values)  # ignore
 
         if len(self._values) > 10:
             self._scrollbar = ttk.Scrollbar(self._toplevel, orient=tk.VERTICAL, command=self._listbox.yview)
@@ -136,6 +136,7 @@ class SearchableComboBox(ttk.Frame):
             self._listbox.config(yscrollcommand=self._scrollbar.set)
 
     def _unpopup(self) -> None:
+        assert self._toplevel
         self._toplevel.destroy()
         self._toplevel = None
         self._listbox = None
