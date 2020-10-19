@@ -4,21 +4,21 @@ import matplotobjlib as plot
 
 import utils
 from gui.components import PlotComponent
-from gui.options import ArtistChooser
+from gui.options import ArtistChooser, Spinbox
 from track import Track
 
 
 class ArtistsPlot(PlotComponent):
-    name = "Listens per day (7 day average)"
-    options = [ArtistChooser]
+    name = "Listens Per Day"
+    options = [ArtistChooser, Spinbox(text="Moving average days: ", from_=1, to=14, default=7)]
 
-    def graphs(self, all_tracks: List[Track], artists: List[str]) -> Iterable[plot.Graph]:  # type: ignore # pylint: disable=arguments-differ
+    def graphs(self, all_tracks: List[Track], artists: List[str], smoothing: int) -> Iterable[plot.Graph]:  # type: ignore # pylint: disable=arguments-differ
         days, listens_per_day = utils.listens_per_day(all_tracks)
 
         return (
             plot.Graph(
                 x_values=days,
-                y_values=utils.moving_average(listens_per_day[artist], 7),
+                y_values=utils.moving_average(listens_per_day[artist], smoothing),
                 legend_label=artist,
                 plot_type="-",
             )

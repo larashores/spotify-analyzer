@@ -44,6 +44,33 @@ class CheckButton:
         return _CheckButton(parent, text=self._text)
 
 
+class _Spinbox(OptionWidget):
+    def __init__(self, parent: Parent, *, text: str, from_: int, to: int, default: int):
+        super().__init__(parent)
+        self._var = tk.StringVar(self)
+        label = ttk.Label(self, text=text)
+        spinbox = ttk.Spinbox(self, from_=from_, to=to, width=5, textvariable=self._var, justify=tk.CENTER)
+
+        label.pack(side=tk.LEFT)
+        spinbox.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+
+        spinbox.set(default)
+
+    def get_value(self) -> int:
+        return int(self._var.get())
+
+
+class Spinbox:
+    def __init__(self, *, text: str, from_: int, to: int, default: int):
+        self._text = text
+        self._from = from_
+        self._to = to
+        self._default = default
+
+    def __call__(self, parent: Parent = None) -> OptionWidget:
+        return _Spinbox(parent, text=self._text, from_=self._from, to=self._to, default=self._default)
+
+
 class ArtistChooser(OptionWidget):
     def __init__(self, parent: Parent = None):
         super().__init__(parent)
@@ -110,6 +137,7 @@ class ArtistChooser(OptionWidget):
 
     def _on_add_artist(self) -> None:
         self._listbox.insert(self._listbox.size(), self._combo_var.get())
+        self._combo_var.set("")
         self._configure_combo_box()
 
     def _on_delete(self, _event: tk.Event) -> None:

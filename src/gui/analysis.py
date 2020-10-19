@@ -24,6 +24,8 @@ class AnalysisWidgets(ttk.Frame):
     def __init__(self, parent: Parent):
         super().__init__(parent)
 
+        self._seperators: List[tk.Widget] = []
+
         self.options_frame = ttk.Frame(self)
         options_label = ttk.Label(self.options_frame, text="Options", style="Subtitle.TLabel")
         self.options_seperator = ttk.Separator(self.options_frame)
@@ -53,8 +55,19 @@ class AnalysisWidgets(ttk.Frame):
         self.options_seperator.pack_forget()
         self.options_button.pack_forget()
 
-        for widget in widgets:
-            widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
+        for seperator in self._seperators:
+            seperator.destroy()
+        self._seperators.clear()
+
+        if widgets:
+            iterator = iter(widgets)
+            next(iterator).pack(fill=tk.BOTH, anchor=tk.CENTER)
+            
+            for widget in iterator:
+                seperator = ttk.Separator(self.options_frame)
+                seperator.pack(fill=tk.X, padx=60, pady=5)
+                self._seperators.append(seperator)
+                widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
 
         self.options_seperator.pack(fill=tk.X, padx=5, pady=5)
         self.options_button.pack(padx=30, anchor=tk.N)
