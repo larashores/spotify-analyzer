@@ -2,7 +2,7 @@ import logging
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showerror, showwarning
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from config import Config
 from gui import utils
@@ -12,6 +12,7 @@ from gui.components.monthlylistens import MonthlyListens
 from gui.components.topartists import TopArtistsByDuration, TopArtistsByListens
 from gui.components.totaltracks import TotalTracks
 from gui.components.weeklycolormesh import WeeklyColorMesh
+from gui.filters import DateRangeFilter, Filter, FilterWidget
 from gui.options import OptionWidget
 from track import Track
 from type_hints import Parent
@@ -19,6 +20,7 @@ from type_hints import Parent
 logger = logging.getLogger(f"analysis.{__name__}")
 
 COMPONENTS = (ArtistsPlot, MonthlyListens, TopArtistsByDuration, TopArtistsByListens, TotalTracks, WeeklyColorMesh)
+FILTERS: Tuple[Filter] = (DateRangeFilter,)
 
 
 class AnalysisWidgets(ttk.Frame):
@@ -27,10 +29,9 @@ class AnalysisWidgets(ttk.Frame):
 
         self._options_seperators: List[tk.Widget] = []
         self._filters_seperators: List[tk.Widget] = []
-        
+
         self.filters_frame = ttk.Frame(self)
         filters_label = ttk.Label(self.filters_frame, text="Filters", style="Subtitle.TLabel")
-        self.filters_seperator = ttk.Separator(self.filters_frame)
         filters_seperator = ttk.Separator(self, orient=tk.VERTICAL)
 
         self.options_frame = ttk.Frame(self)
@@ -82,10 +83,8 @@ class AnalysisWidgets(ttk.Frame):
 
         self.options_seperator.pack(fill=tk.X, padx=5, pady=5)
         self.analyze_button.pack(padx=30, anchor=tk.N)
-        
-    def pack_filters(self, *widgets: tk.Widget) -> None:
-        self.filters_seperator.pack_forget()
 
+    def pack_filters(self, *widgets: tk.Widget) -> None:
         for seperator in self._filters_seperators:
             seperator.destroy()
         self._filters_seperators.clear()
@@ -100,8 +99,6 @@ class AnalysisWidgets(ttk.Frame):
                 self._filters_seperators.append(seperator)
                 widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
 
-        self.filters_seperator.pack(fill=tk.X, padx=5, pady=5)
-
 
 class Analysis:
     def __init__(self, parent: Parent, *, config: Config):
@@ -111,6 +108,7 @@ class Analysis:
         self._current_choice: Optional[str] = None
         self._current_component: Optional[Component] = None
         self._options: List[OptionWidget] = []
+        self._filters: List[FilterWidget] = []
         self._component_map = {component.name: component for component in COMPONENTS}  # pylint: disable=no-member
         if config.component_directory is not None:
             for component in utils.load_components(config.component_directory):
@@ -125,6 +123,10 @@ class Analysis:
         if self._component_map:
             self.gui.choice_var.set(names[0])
             self._on_select()
+
+        for filter_type in FILTERS:
+            self._filters.append(filter_type(self.gui.filters_frame))
+        self.gui.pack_filters(*self._filters)
 
     def _on_select(self, _event: Optional[tk.Event] = None) -> None:
         choice = self.gui.choice_var.get()
@@ -163,8 +165,11 @@ class Analysis:
 
     def _on_analyze(self) -> None:
         if self._tracks is not None:
+            tracks = self._tracks
+            for filter_ in self._filters:
+                tracks = filter_.filter(tracks)
             try:
-                self._current_component.analyze(self._tracks, *(widget.get_value() for widget in self._options))  # type: ignore
+                self._current_component.analyze(tracks, *(widget.get_value() for widget in self._options))  # type: ignore
             except Exception as err:  # pylint: disable=broad-except
                 logger.exception("Error analyzing data")
                 showerror(title="Error", message=f"Error analyzing data: {err}")

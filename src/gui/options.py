@@ -9,9 +9,6 @@ from type_hints import Parent
 
 
 class OptionWidget(ttk.Frame):
-    def __init__(self, parent: Parent = None) -> None:
-        super().__init__(parent)
-
     def get_value(self) -> Any:
         pass
 
