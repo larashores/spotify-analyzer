@@ -96,7 +96,7 @@ class SearchableComboBox(ttk.Frame):
             self._select_suggested()
 
     def _on_focus_out(self, _event: tk.Event) -> None:
-        x, y =  self.winfo_pointerxy()
+        x, y = self.winfo_pointerxy()
         if self._toplevel:
             root_x = self._toplevel.winfo_rootx()
             root_y = self._toplevel.winfo_rooty()

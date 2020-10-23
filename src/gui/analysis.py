@@ -11,13 +11,14 @@ from gui.components.component import Component
 from gui.components.monthlylistens import MonthlyListens
 from gui.components.topartists import TopArtistsByDuration, TopArtistsByListens
 from gui.components.totaltracks import TotalTracks
+from gui.components.weeklycolormesh import WeeklyColorMesh
 from gui.options import OptionWidget
 from track import Track
 from type_hints import Parent
 
 logger = logging.getLogger(f"analysis.{__name__}")
 
-COMPONENTS = (ArtistsPlot, MonthlyListens, TopArtistsByDuration, TopArtistsByListens, TotalTracks)
+COMPONENTS = (ArtistsPlot, MonthlyListens, TopArtistsByDuration, TopArtistsByListens, TotalTracks, WeeklyColorMesh)
 
 
 class AnalysisWidgets(ttk.Frame):
@@ -62,7 +63,7 @@ class AnalysisWidgets(ttk.Frame):
         if widgets:
             iterator = iter(widgets)
             next(iterator).pack(fill=tk.BOTH, anchor=tk.CENTER)
-            
+
             for widget in iterator:
                 seperator = ttk.Separator(self.options_frame)
                 seperator.pack(fill=tk.X, padx=60, pady=5)

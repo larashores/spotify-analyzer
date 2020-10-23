@@ -12,15 +12,17 @@ class ArtistsPlot(PlotComponent):
     name = "Listens Per Day"
     options = [ArtistChooser, Spinbox(text="Moving average days: ", from_=1, to=14, default=7)]
 
-    def graphs(self, all_tracks: List[Track], artists: List[str], smoothing: int) -> Iterable[plot.Graph]:  # type: ignore # pylint: disable=arguments-differ
+    def subplot(self, all_tracks: List[Track], artists: List[str], smoothing: int) -> plot.SubPlot:  # type: ignore # pylint: disable=arguments-differ
         days, listens_per_day = utils.listens_per_day(all_tracks)
 
-        return (
-            plot.Graph(
-                x_values=days,
-                y_values=utils.moving_average(listens_per_day[artist], smoothing),
-                legend_label=artist,
-                plot_type="-",
+        return plot.SubPlot(
+            *(
+                plot.Graph(
+                    x_values=days,
+                    y_values=utils.moving_average(listens_per_day[artist], smoothing),
+                    legend_label=artist,
+                    plot_type="-",
+                )
+                for artist in artists
             )
-            for artist in artists
         )

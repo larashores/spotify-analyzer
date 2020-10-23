@@ -24,6 +24,10 @@ def _start_of_day(dt: datetime.datetime) -> datetime.datetime:
     return dt.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
+def _start_of_hour(dt: datetime.datetime) -> datetime.datetime:
+    return dt.replace(minute=0, second=0, microsecond=0)
+
+
 def _pin(track: Track, pinner: Callable[[datetime.datetime], datetime.datetime]) -> datetime.datetime:
     pinned_end = pinner(track.end)
     return pinned_end if (track.end - pinned_end > pinned_end - track.start) else pinner(track.start)
@@ -35,6 +39,10 @@ def in_month(track: Track) -> datetime.date:
 
 def in_day(track: Track) -> datetime.date:
     return _pin(track, _start_of_day).date()
+
+
+def in_hour(track: Track) -> datetime.date:
+    return _pin(track, _start_of_hour)
 
 
 def hours_minutes_seconds(duration: datetime.timedelta) -> Tuple[int, int, int]:

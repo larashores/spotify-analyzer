@@ -2,6 +2,8 @@ import dataclasses
 import datetime
 from typing import TypedDict
 
+from backports import zoneinfo
+
 
 def _fmt_time(timestamp: str) -> datetime.datetime:
     return datetime.datetime.strptime(timestamp, "%Y-%m-%d %H:%M")
@@ -31,4 +33,13 @@ class Track:
             start=start,
             end=end,
             duration=datetime.timedelta(milliseconds=data["msPlayed"]),
+        )
+
+    def to_timezone(self, timezone: zoneinfo.ZoneInfo) -> "Track":
+        return Track(
+            artist=self.artist,
+            track=self.track,
+            start=self.start.replace(tzinfo=zoneinfo.ZoneInfo("UTC")).astimezone(timezone),
+            end=self.end.replace(tzinfo=zoneinfo.ZoneInfo("UTC")).astimezone(timezone),
+            duration=self.duration,
         )

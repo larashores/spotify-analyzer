@@ -13,9 +13,11 @@ cx-freeze = "*"
 py2exe = "*"
 
 [packages]
-matplotobjlib = "*"
+matplotobjlib = "==1.0.*"
 cx-freeze = "*"
 toml = "*"
+backports-zoneinfo = "*"
+tzdata = "*"
 
 [requires]
 python_version = "3.8"
