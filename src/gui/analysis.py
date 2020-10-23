@@ -25,13 +25,19 @@ class AnalysisWidgets(ttk.Frame):
     def __init__(self, parent: Parent):
         super().__init__(parent)
 
-        self._seperators: List[tk.Widget] = []
+        self._options_seperators: List[tk.Widget] = []
+        self._filters_seperators: List[tk.Widget] = []
+        
+        self.filters_frame = ttk.Frame(self)
+        filters_label = ttk.Label(self.filters_frame, text="Filters", style="Subtitle.TLabel")
+        self.filters_seperator = ttk.Separator(self.filters_frame)
+        filters_seperator = ttk.Separator(self, orient=tk.VERTICAL)
 
         self.options_frame = ttk.Frame(self)
         options_label = ttk.Label(self.options_frame, text="Options", style="Subtitle.TLabel")
         self.options_seperator = ttk.Separator(self.options_frame)
-        self.options_button = ttk.Button(self.options_frame, text="Analyze")
-        sidebar_seperator = ttk.Separator(self, orient=tk.VERTICAL)
+        self.analyze_button = ttk.Button(self.options_frame, text="Analyze")
+        options_seperator = ttk.Separator(self, orient=tk.VERTICAL)
 
         choice_frame = ttk.Frame(self)
         self.choice_var = tk.StringVar(choice_frame)
@@ -40,11 +46,15 @@ class AnalysisWidgets(ttk.Frame):
 
         self.analysis_frame = ttk.Frame(self)
 
-        self.options_frame.pack(side=tk.LEFT, fill=tk.Y)
-        options_label.pack()
+        self.options_frame.pack(side=tk.RIGHT, fill=tk.Y)
+        options_label.pack(padx=30)
         self.pack_options()
+        options_seperator.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5)
 
-        sidebar_seperator.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
+        self.filters_frame.pack(side=tk.LEFT, fill=tk.Y)
+        filters_label.pack(padx=30)
+        self.pack_filters()
+        filters_seperator.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
 
         choice_frame.pack(side=tk.TOP, fill=tk.BOTH)
         choice_label.pack(side=tk.LEFT)
@@ -54,11 +64,11 @@ class AnalysisWidgets(ttk.Frame):
 
     def pack_options(self, *widgets: tk.Widget) -> None:
         self.options_seperator.pack_forget()
-        self.options_button.pack_forget()
+        self.analyze_button.pack_forget()
 
-        for seperator in self._seperators:
+        for seperator in self._options_seperators:
             seperator.destroy()
-        self._seperators.clear()
+        self._options_seperators.clear()
 
         if widgets:
             iterator = iter(widgets)
@@ -67,11 +77,30 @@ class AnalysisWidgets(ttk.Frame):
             for widget in iterator:
                 seperator = ttk.Separator(self.options_frame)
                 seperator.pack(fill=tk.X, padx=60, pady=5)
-                self._seperators.append(seperator)
+                self._options_seperators.append(seperator)
                 widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
 
         self.options_seperator.pack(fill=tk.X, padx=5, pady=5)
-        self.options_button.pack(padx=30, anchor=tk.N)
+        self.analyze_button.pack(padx=30, anchor=tk.N)
+        
+    def pack_filters(self, *widgets: tk.Widget) -> None:
+        self.filters_seperator.pack_forget()
+
+        for seperator in self._filters_seperators:
+            seperator.destroy()
+        self._filters_seperators.clear()
+
+        if widgets:
+            iterator = iter(widgets)
+            next(iterator).pack(fill=tk.BOTH, anchor=tk.CENTER)
+
+            for widget in iterator:
+                seperator = ttk.Separator(self.options_frame)
+                seperator.pack(fill=tk.X, padx=60, pady=5)
+                self._filters_seperators.append(seperator)
+                widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
+
+        self.filters_seperator.pack(fill=tk.X, padx=5, pady=5)
 
 
 class Analysis:
@@ -88,7 +117,7 @@ class Analysis:
                 self._component_map[component.name] = component
         names = sorted(self._component_map.keys())
 
-        self.gui.options_button.config(command=self._on_analyze)
+        self.gui.analyze_button.config(command=self._on_analyze)
         self.gui.choice_combo.config(values=names)
         self.gui.choice_combo.state(["readonly"])
         self.gui.choice_combo.bind("<<ComboboxSelected>>", self._on_select)
