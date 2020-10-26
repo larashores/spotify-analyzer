@@ -12,7 +12,7 @@ from gui.components.monthlylistens import MonthlyListens
 from gui.components.topartists import TopArtistsByDuration, TopArtistsByListens
 from gui.components.totaltracks import TotalTracks
 from gui.components.weeklycolormesh import WeeklyColorMesh
-from gui.filters import DateRangeFilter, Filter, FilterWidget
+from gui.filters import DateRangeFilter, Filter, FilterWidget, Timezone
 from gui.options import OptionWidget
 from track import Track
 from type_hints import Parent
@@ -20,7 +20,7 @@ from type_hints import Parent
 logger = logging.getLogger(f"analysis.{__name__}")
 
 COMPONENTS = (ArtistsPlot, MonthlyListens, TopArtistsByDuration, TopArtistsByListens, TotalTracks, WeeklyColorMesh)
-FILTERS: Tuple[Filter] = (DateRangeFilter,)
+FILTERS: Tuple[Filter] = (DateRangeFilter, Timezone)
 
 
 class AnalysisWidgets(ttk.Frame):
@@ -91,7 +91,7 @@ class AnalysisWidgets(ttk.Frame):
             next(iterator).pack(fill=tk.BOTH, anchor=tk.CENTER)
 
             for widget in iterator:
-                seperator = ttk.Separator(self.options_frame)
+                seperator = ttk.Separator(self.filters_frame)
                 seperator.pack(fill=tk.X, padx=60, pady=5)
                 self._filters_seperators.append(seperator)
                 widget.pack(fill=tk.BOTH, anchor=tk.CENTER)

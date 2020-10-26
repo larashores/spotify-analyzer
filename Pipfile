@@ -18,6 +18,7 @@ toml = "*"
 backports-zoneinfo = "*"
 tzdata = "*"
 pillow = "*"
+tzlocal = "*"
 
 [requires]
 python_version = "3.8"

@@ -4,6 +4,8 @@ from pathlib import Path
 from tkinter import ttk
 from typing import Any, List, Optional, Protocol, Set
 
+import tzlocal
+from backports import zoneinfo
 from PIL import Image, ImageTk
 
 import utils
@@ -38,12 +40,14 @@ class DateRangeFilter(FilterWidget):
         end_button = ttk.Button(self, image=self._clock_image, command=self._on_click_end)
 
         start_label.grid(row=0, column=0)
-        self._start_entry.grid(row=0, column=1)
+        self._start_entry.grid(row=0, column=1, sticky=tk.E + tk.W)
         start_button.grid(row=0, column=2)
 
         end_label.grid(row=1, column=0)
-        self._end_entry.grid(row=1, column=1)
+        self._end_entry.grid(row=1, column=1, sticky=tk.E + tk.W)
         end_button.grid(row=1, column=2)
+
+        self.columnconfigure(1, weight=1)
 
     def _on_check(self) -> None:
         state = "!disabled" if self._title_var.get() else "disabled"
@@ -66,3 +70,25 @@ class DateRangeFilter(FilterWidget):
         end = get_datetime(self)
         if end is not None:
             self._end_var.set(end.date().isoformat())
+
+
+class Timezone(FilterWidget):
+    def __init__(self, parent: Parent = None):
+        super().__init__(parent)
+
+        self._combo_var = tk.StringVar()
+        label = ttk.Label(self, text="Timezone: ")
+        combo = ttk.Combobox(self, values=sorted(zoneinfo.available_timezones()), textvariable=self._combo_var)
+
+        label.pack(side=tk.LEFT)
+        combo.pack(side=tk.LEFT, expand=True, fill=tk.X)
+
+        combo.state(["readonly"])
+
+        self._combo_var.set(tzlocal.get_localzone())
+
+    def filter(self, tracks: List[Track]) -> List[Track]:
+        if zone := self._combo_var.get():
+            tracks = [track.to_timezone(zoneinfo.ZoneInfo(zone)) for track in tracks]
+
+        return tracks

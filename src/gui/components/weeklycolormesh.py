@@ -22,7 +22,6 @@ class WeeklyColorMesh(PlotComponent):
 
         values = [[0 for i in range(24)] for i in range(7)]
         for track in tracks:
-            track = track.to_timezone(zoneinfo.ZoneInfo("America/Los_Angeles"))
             values[-((utils.in_day(track).weekday() - 5)) % 7][utils.in_hour(track).hour - 1] += 1
 
         return plot.SubPlot(
