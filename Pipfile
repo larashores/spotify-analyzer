@@ -12,7 +12,7 @@ pylint = "*"
 cx-freeze = "*"
 
 [packages]
-matplotobjlib = "==1.0.*"
+matplotobjlib = "==1.0.*, >=1.0.1"
 cx-freeze = "*"
 toml = "*"
 backports-zoneinfo = "*"
