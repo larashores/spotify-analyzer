@@ -24,11 +24,10 @@ class Filter(Protocol):
 
 
 class DateRangeFilter(FilterWidget):
-
     def __init__(self, parent: Parent = None):
         super().__init__(parent)
         self._clock_image = ImageTk.PhotoImage(Image.open("resources/clock.png").resize((13, 13)))
-        
+
         start_label = ttk.Label(self, text="Start: ")
         self._start_var = tk.StringVar()
         self._start_entry = ttk.Entry(self, textvariable=self._start_var, justify=tk.CENTER)
@@ -45,13 +44,12 @@ class DateRangeFilter(FilterWidget):
         end_label.grid(row=1, column=0)
         self._end_entry.grid(row=1, column=1)
         end_button.grid(row=1, column=2)
-    
+
     def _on_check(self) -> None:
         state = "!disabled" if self._title_var.get() else "disabled"
         self._start_entry.state([state])
         self._end_entry.state([state])
 
-    
     def filter(self, tracks: List[Track]) -> List[Track]:
         if start := self._start_var.get():
             tracks = [track for track in tracks if datetime.datetime.fromisoformat(start) <= track.start]

@@ -33,11 +33,11 @@ class AnalysisWidgets(ttk.Frame):
         self.filters_frame = ttk.Frame(self)
         filters_label = ttk.Label(self.filters_frame, text="Filters", style="Subtitle.TLabel")
         filters_seperator = ttk.Separator(self, orient=tk.VERTICAL)
+        self._filters_seperator = ttk.Separator(self.filters_frame)
+        self.analyze_button = ttk.Button(self.filters_frame, text="Analyze")
 
         self.options_frame = ttk.Frame(self)
         options_label = ttk.Label(self.options_frame, text="Options", style="Subtitle.TLabel")
-        self.options_seperator = ttk.Separator(self.options_frame)
-        self.analyze_button = ttk.Button(self.options_frame, text="Analyze")
         options_seperator = ttk.Separator(self, orient=tk.VERTICAL)
 
         choice_frame = ttk.Frame(self)
@@ -64,9 +64,6 @@ class AnalysisWidgets(ttk.Frame):
         self.analysis_frame.pack(expand=True, fill=tk.BOTH)
 
     def pack_options(self, *widgets: tk.Widget) -> None:
-        self.options_seperator.pack_forget()
-        self.analyze_button.pack_forget()
-
         for seperator in self._options_seperators:
             seperator.destroy()
         self._options_seperators.clear()
@@ -81,10 +78,10 @@ class AnalysisWidgets(ttk.Frame):
                 self._options_seperators.append(seperator)
                 widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
 
-        self.options_seperator.pack(fill=tk.X, padx=5, pady=5)
-        self.analyze_button.pack(padx=30, anchor=tk.N)
-
     def pack_filters(self, *widgets: tk.Widget) -> None:
+        self._filters_seperator.pack_forget()
+        self.analyze_button.pack_forget()
+
         for seperator in self._filters_seperators:
             seperator.destroy()
         self._filters_seperators.clear()
@@ -98,6 +95,9 @@ class AnalysisWidgets(ttk.Frame):
                 seperator.pack(fill=tk.X, padx=60, pady=5)
                 self._filters_seperators.append(seperator)
                 widget.pack(fill=tk.BOTH, anchor=tk.CENTER)
+
+        self._filters_seperator.pack(fill=tk.X, padx=5, pady=5)
+        self.analyze_button.pack(padx=30, anchor=tk.N)
 
 
 class Analysis:
