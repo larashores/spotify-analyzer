@@ -10,7 +10,6 @@ isort = "*"
 pytest = "*"
 pylint = "*"
 cx-freeze = "*"
-py2exe = "*"
 
 [packages]
 matplotobjlib = "==1.0.*"
@@ -18,6 +17,7 @@ cx-freeze = "*"
 toml = "*"
 backports-zoneinfo = "*"
 tzdata = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.8"
